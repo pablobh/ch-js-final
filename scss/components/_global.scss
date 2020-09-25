@@ -1,0 +1,43 @@
+.has-background-cremita {
+    background-color: $cremita !important;
+}
+
+.has-background-morado {
+    background-color: $morado !important;
+}
+
+.has-background-naraja {
+    background-color: $naranja !important;
+}
+
+.has-background-space-black {
+    background-color: $space-black !important;
+}
+
+.has-text-cremita {
+    color: $cremita !important;
+}
+
+.has-text-morado {
+    color: $morado !important;
+}
+
+.has-text-naranja {
+    color: $naranja !important;
+}
+
+.has-text-space-black {
+    color: $space-black !important;
+}
+
+.has-border-left {
+    border-left: 2px solid $naranja;
+}
+
+.footer {
+    @extend .has-text-cremita;
+
+    ul > li .title {
+        @extend .has-text-cremita;
+    }
+}

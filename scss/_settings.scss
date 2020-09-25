@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+// General - Colores
+$space-black: #193639;
+$verde: #34b7ae;
+$morado: #9d2167;
+$naranja:  #f75328;
+$yellow: #f6ef57;
+$cremita: #f5f8e3;
+
+// Bulma - Variables básicas
+$family-sans-serif: "Red Hat Display", sans-serif;
+$primary: $verde;
+$link: $verde;
+$widescreen-enabled: true;
+$fullhd-enabled: true;
+
+// Bulma - Variables de los componentes
+$body-background-color: $cremita;
+$control-border-width: 2px;
+$input-border-color: transparent;
