@@ -31,7 +31,7 @@
 }
 
 .has-border-left {
-    border-left: 2px solid $naranja;
+    border-left: 4px solid $naranja;
 }
 
 .footer {
@@ -40,4 +40,13 @@
     ul > li .title {
         @extend .has-text-cremita;
     }
+
+    ul > li:last-child {
+        @extend .mb-0;
+    }
+}
+
+.is-tiempo-entrega {
+    opacity: .6;
+    font-size: small;
 }
