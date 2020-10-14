@@ -4969,3 +4969,15 @@ a.has-text-danger-dark:hover, a.has-text-danger-dark:focus {
 .is-tiempo-entrega {
   opacity: .6;
   font-size: small; }
+
+.box {
+  -webkit-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s; }
+  .box:hover {
+    margin-top: -6px;
+    -webkit-box-shadow: 0 4px 12px 0 rgba(10, 10, 10, 0.1), 0 0 20px 10px rgba(60, 60, 60, 0.1);
+            box-shadow: 0 4px 12px 0 rgba(10, 10, 10, 0.1), 0 0 20px 10px rgba(60, 60, 60, 0.1);
+    -webkit-transition: all 0.2s;
+    -o-transition: all 0.2s;
+    transition: all 0.2s; }

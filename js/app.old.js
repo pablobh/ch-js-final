@@ -7,60 +7,7 @@
 */
 
 // Reviso si ya hay alguna cotización y si la hay, la corgo
-//
-$(function() {
-    cargarCotizacion();
-})
-
-// Cargo las categorías y los servicios de cada una por ajax desde un json externo
-$.ajax({
-    url: "js/servicios.json",
-
-    success: function (categoria) {
-        categoria.forEach((categoria) => {
-            $("#bodyContainer").append(`
-                <section class="section ${categoria.bg}">
-                    <div class="container pb-6">
-                        <h2 class="title">${categoria.titulo}</h2>
-                        <p class="subtitle">${categoria.txt}</p>
-                        <div class="columns is-multiline" id="${categoria.id}">
-            `)
-            categoria.servicios.forEach((servicios) => {
-                $(`#${categoria.id}`).append (`
-                    <div class="column is-one-third">
-                        <div class="box">
-                            <div class="content">
-                                <p>
-                                    <strong>${servicios.nombre}</strong>
-                                    <br>
-                                    ${servicios.descripcion}
-                                </p>
-                            </div>
-                            <button onclick="agregarACotizacion('${categoria.titulo}', '${servicios.nombre}', ${servicios.entrega}, ${servicios.precio})" class="button is-primary">Agregar al proyecto</button>
-                        </div>
-                    </div>
-                `)
-            })
-        $("#bodyContainer").append(`
-                    </div>
-                </div>
-            </section>
-        `)
-        })
-    },
-
-    error: function(error) {
-        Swal.fire({
-            position: "top-end",
-            toast: true,
-            icon: "error",
-            title: "Error al cargar JSON",
-            showConfirmButton: false,
-            timer: 4000,
-        });
-    },
-});
-
+//document.onload(cargarCotizacion());
 
 // Creo el array cotización que contendrá el listado completo de servicios
 let cotizacion = [];
@@ -224,5 +171,3 @@ function cargarCotizacion() {
 // else {
 //     toggle-class(show) al boton de quitar
 // }
-
-

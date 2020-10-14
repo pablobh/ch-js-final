@@ -50,3 +50,13 @@
     opacity: .6;
     font-size: small;
 }
+
+.box {
+    transition: all 0.2s;
+
+    &:hover {
+        margin-top: -6px;
+        box-shadow: 0 4px 12px 0 rgba(10, 10, 10, 0.1), 0 0 20px 10px rgba(60, 60, 60, 0.1);
+        transition: all 0.2s;
+    }
+}
