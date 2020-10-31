@@ -12,14 +12,17 @@ $(function() {
     cargarCotizacion();
 })
 
+let serviciosDisponibles = [];
+
 // Cargo las categorías y los servicios de cada una por ajax desde un json externo
 $.ajax({
     url: "js/servicios.json",
 
     success: function (categoria) {
+        serviciosDisponibles = categoria;
         categoria.forEach((categoria) => {
             $("#bodyContainer").append(`
-                <section class="section ${categoria.bg}">
+                <section class="section ${categoria.bg}" data-iva="${categoria.iva}" data-unico="${categoria.unico}">
                     <div class="container pb-6">
                         <h2 class="title">${categoria.titulo}</h2>
                         <p class="subtitle">${categoria.txt}</p>
@@ -28,7 +31,7 @@ $.ajax({
             categoria.servicios.forEach((servicios) => {
                 $(`#${categoria.id}`).append (`
                     <div class="column is-one-third">
-                        <div class="box">
+                        <div class="box servicio">
                             <div class="content">
                                 <p>
                                     <strong>${servicios.nombre}</strong>
@@ -36,7 +39,8 @@ $.ajax({
                                     ${servicios.descripcion}
                                 </p>
                             </div>
-                            <button onclick="agregarACotizacion('${categoria.titulo}', '${servicios.nombre}', ${servicios.entrega}, ${servicios.precio})" class="button is-primary">Agregar al proyecto</button>
+                            <button onclick="agregarACotizacion('${categoria.titulo}', '${servicios.nombre}', ${servicios.entrega}, ${servicios.precio}')" class="button is-primary">Agregar</button>
+                            <button onclick="quitarACotizacion('${categoria.titulo}', '${servicios.nombre}', ${servicios.entrega}, ${servicios.precio})" class="button is-warning is-hidden">Quitar</button>
                         </div>
                     </div>
                 `)
@@ -61,6 +65,18 @@ $.ajax({
     },
 });
 
+// Solo poder seleccionar un servicio
+var serviciosWrapper = document.querySelectorAll('#bodyContainer>section');
+function probarUnico() {
+    serviciosWrapper.forEach((categoria, i) => {
+        if ( serviciosWrapper[i].dataset.unico == true ) {
+            console.log(`${categoria} es única`)
+        }
+        else {
+            console.log(`${categoria} NO es única`)
+        }
+    })
+}
 
 // Creo el array cotización que contendrá el listado completo de servicios
 let cotizacion = [];
@@ -87,6 +103,41 @@ function agregarACotizacion (categoria, nombre, entrega, precio) {
         timer: 1500
     })
 }
+
+function agregarACotizacion2 (idServicio) {
+    let servicioAAgregar = serviciosDisponibles.findIndex(function (indexServicio) {
+        return indexServicio === idServicio;
+    })
+    let servicio = {
+        categoria: serviciosDisponibles.servicios[servicioAAgregar].categoria,
+        nombre: serviciosDisponibles.servicios[servicioAAgregar].nombre,
+        entrega: serviciosDisponibles.servicios[servicioAAgregar].entrega,
+        precio: serviciosDisponibles.servicios[servicioAAgregar].precio
+    }
+    cotizacion.push(servicio);
+    localStorage.setItem('cotizacionLocal', JSON.stringify(cotizacion));
+    mostrarCotizacion();
+    sumarDias();
+    sumarPrecios();
+    // if ( serviciosData.unico == true ) {
+    //     let botonAgregar = document.querySelectorAll('.box.servicio>.button.is-primary');
+    //     botonAgregar.onclick = function() {
+    //         document.querySelector('button.is-warning').toggle('is-hidden');
+    //     }
+    // }
+    Swal.fire({
+        position: 'top-end',
+        toast: true,
+        icon: 'success',
+        title: 'Servicio agregado',
+        showConfirmButton: false,
+        timer: 1500
+    })
+}
+
+
+
+
 
 function mostrarCotizacion() {
     document.getElementById('cotizacion-intro').innerText = 'Los servicios que tienes en tu cotización son:';
@@ -225,4 +276,10 @@ function cargarCotizacion() {
 //     toggle-class(show) al boton de quitar
 // }
 
+//document.querySelectorAll('.box .servicio').document.querySelectorAll('.button .is-primary').onclick = document.querySelector('button.is-warning').toggle('is-hidden');
 
+// function mostarBoton() {
+//     document.querySelector('button.is-warning').toggle('is-hidden');
+// }
+
+// document.querySelectorAll('.box .servicio > .button .is-primary').click(document.querySelector('button.is-warning').toggle('is-hidden'))
