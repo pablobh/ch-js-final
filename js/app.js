@@ -12,6 +12,10 @@ $(function() {
     cargarCotizacion();
 })
 
+const iva = 19;
+precio
+iva
+preciofinal
 let serviciosDisponibles = [];
 
 // Cargo las categorías y los servicios de cada una por ajax desde un json externo
