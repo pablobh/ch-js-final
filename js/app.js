@@ -6,17 +6,17 @@
 * - Cupón de descuento (?)
 */
 
+// Servicios Disponibles, aquí se guardará el array que cargue del JSON
+let serviciosDisponibles = [];
+
+// Creo el array cotización que contendrá el listado completo de los servicios a cotizar
+let cotizacion = [];
+
 // Reviso si ya hay alguna cotización y si la hay, la corgo
-//
 $(function() {
     cargarCotizacion();
 })
 
-const iva = 19;
-precio
-iva
-preciofinal
-let serviciosDisponibles = [];
 
 // Cargo las categorías y los servicios de cada una por ajax desde un json externo
 $.ajax({
@@ -43,8 +43,8 @@ $.ajax({
                                     ${servicios.descripcion}
                                 </p>
                             </div>
-                            <button onclick="agregarACotizacion('${categoria.titulo}', '${servicios.nombre}', ${servicios.entrega}, ${servicios.precio}')" class="button is-primary">Agregar</button>
-                            <button onclick="quitarACotizacion('${categoria.titulo}', '${servicios.nombre}', ${servicios.entrega}, ${servicios.precio})" class="button is-warning is-hidden">Quitar</button>
+                            <button id="add-${servicios.id}" onclick="agregarACotizacion('${categoria.titulo}', '${servicios.nombre}', ${servicios.entrega}, ${servicios.precio}, '${servicios.id}', '${categoria.id}')" class="button is-primary">Agregar</button>
+                            <button id="delete-${servicios.id}" onclick="quitarACotizacion('${servicios.id}', '${categoria.id}')" class="button is-warning" style="display: none">Quitar</button>
                         </div>
                     </div>
                 `)
@@ -67,87 +67,59 @@ $.ajax({
             timer: 4000,
         });
     },
-});
-
-// Solo poder seleccionar un servicio
-var serviciosWrapper = document.querySelectorAll('#bodyContainer>section');
-function probarUnico() {
-    serviciosWrapper.forEach((categoria, i) => {
-        if ( serviciosWrapper[i].dataset.unico == true ) {
-            console.log(`${categoria} es única`)
-        }
-        else {
-            console.log(`${categoria} NO es única`)
-        }
-    })
-}
-
-// Creo el array cotización que contendrá el listado completo de servicios
-let cotizacion = [];
+})
 
 // Función para crear los objetos que se irán agregando a la cotización
-function agregarACotizacion (categoria, nombre, entrega, precio) {
-    let servicio = {
-        categoria: categoria,
-        nombre: nombre,
-        entrega: entrega,
-        precio: precio
+function agregarACotizacion (categoria, nombre, entrega, precio, idServicio, idCategoria) {
+    const dataLocal = JSON.parse(localStorage.getItem('cotizacionLocal'));
+    const dataVacio = [];
+    const resultadoValidacion = dataLocal != null ? dataLocal.find(element => element.idServicio == idServicio) : dataVacio;
+    let isUnico = serviciosDisponibles.find(element => element.id == idCategoria);
+    
+    // Valido que la categoria solo deje seleccionar 1 servicio.
+    if (isUnico.unico) {
+        const listaServicios = isUnico.servicios;
+        listaServicios.forEach(servicio => {
+            let idBotonAgregar = 'add-' + servicio.id;
+            document.getElementById(idBotonAgregar).disabled = true;
+        });
     }
-    cotizacion.push(servicio);
-    localStorage.setItem('cotizacionLocal', JSON.stringify(cotizacion));
-    mostrarCotizacion();
-    sumarDias();
-    sumarPrecios();
-    Swal.fire({
-        position: 'top-end',
-        toast: true,
-        icon: 'success',
-        title: 'Servicio agregado',
-        showConfirmButton: false,
-        timer: 1500
-    })
+
+    if (resultadoValidacion == undefined || resultadoValidacion.length == 0) {
+        let idBotonAgregar = 'add-' + idServicio;
+        let idBotonQuitar = 'delete-' + idServicio;
+        document.getElementById(idBotonAgregar).disabled = true;
+        document.getElementById(idBotonQuitar).style.display = "";
+        let servicio = {
+            idCategoria: idCategoria,
+            idServicio: idServicio,
+            categoria: categoria,
+            nombre: nombre,
+            entrega: entrega,
+            precio: precio
+        }
+        cotizacion.push(servicio);
+        localStorage.setItem('cotizacionLocal', JSON.stringify(cotizacion));
+        mostrarCotizacion();
+        sumarDias();
+        sumarPrecios();
+        Swal.fire({
+            position: 'top-end',
+            toast: true,
+            icon: 'success',
+            title: 'Servicio agregado',
+            showConfirmButton: false,
+            timer: 2000
+        })
+    }
 }
 
-function agregarACotizacion2 (idServicio) {
-    let servicioAAgregar = serviciosDisponibles.findIndex(function (indexServicio) {
-        return indexServicio === idServicio;
-    })
-    let servicio = {
-        categoria: serviciosDisponibles.servicios[servicioAAgregar].categoria,
-        nombre: serviciosDisponibles.servicios[servicioAAgregar].nombre,
-        entrega: serviciosDisponibles.servicios[servicioAAgregar].entrega,
-        precio: serviciosDisponibles.servicios[servicioAAgregar].precio
-    }
-    cotizacion.push(servicio);
-    localStorage.setItem('cotizacionLocal', JSON.stringify(cotizacion));
-    mostrarCotizacion();
-    sumarDias();
-    sumarPrecios();
-    // if ( serviciosData.unico == true ) {
-    //     let botonAgregar = document.querySelectorAll('.box.servicio>.button.is-primary');
-    //     botonAgregar.onclick = function() {
-    //         document.querySelector('button.is-warning').toggle('is-hidden');
-    //     }
-    // }
-    Swal.fire({
-        position: 'top-end',
-        toast: true,
-        icon: 'success',
-        title: 'Servicio agregado',
-        showConfirmButton: false,
-        timer: 1500
-    })
-}
-
-
-
-
-
+// Muestro la cotización en el html y lo actualizo con cada servicio que se agregue o quite
 function mostrarCotizacion() {
     document.getElementById('cotizacion-intro').innerText = 'Los servicios que tienes en tu cotización son:';
     let itemLista = document.querySelector('#cotizacion');
     itemLista.innerHTML = "";
-    cotizacion.forEach((service, index) => {
+    cotizacion.forEach((service) => {
         precioBonito = Intl.NumberFormat('es-CO', { 
             style: 'currency',
             currency: 'COP',
@@ -156,7 +128,7 @@ function mostrarCotizacion() {
         localStorage.removeItem('cotizacionLocal');
         localStorage.setItem('cotizacionLocal', JSON.stringify(cotizacion));
         itemLista.innerHTML += `
-        <li id = "servicio-${index}" class="has-border-left mb-6"> 
+        <li id = "servicio-${service.idServicio}" class="has-border-left mb-6"> 
             <div class="columns px-3 level">
                 <div class="column">
                     <p class="subtitle is-6 is-uppercase has-text-primary">${service.categoria}</p>
@@ -169,7 +141,7 @@ function mostrarCotizacion() {
                 <div class="column is-narrow level-item">
                     <span class="tag is-danger">
                         Borrar
-                        <button class="delete" onclick="quitarACotizacion(${index})"></button>
+                        <button class="delete" onclick="quitarACotizacion('${service.idServicio}', '${service.idCategoria}')"></button>
                     </span>
                 </div>
             </div>
@@ -178,9 +150,12 @@ function mostrarCotizacion() {
 }
 
 // Quitar un producto de la cotización
-function quitarACotizacion (index) {
+function quitarACotizacion (idServicio, idCategoria) {
     if (cotizacion.length > 1) {
-        cotizacion.splice(index, 1); 
+        const dataLocal = JSON.parse(localStorage.getItem('cotizacionLocal'));
+        const index = dataLocal.findIndex(element => element.idServicio == idServicio);
+        cotizacion.splice(index, 1);
+        habilitarBotones(idServicio, idCategoria);
         mostrarCotizacion();
         sumarDias();
         sumarPrecios();
@@ -188,13 +163,30 @@ function quitarACotizacion (index) {
             position: 'top-end',
             toast: true,
             icon: 'error',
-            title: 'Servicio eliminados',
+            title: 'Servicio eliminado',
             showConfirmButton: false,
-            timer: 1500
+            timer: 2000
         })
     }
     else {
+        habilitarBotones(idServicio, idCategoria);
         limpiarCotizacion();
+    }
+}
+
+// Habilitar los botones de los servicios despues de eliminarlos de la cotización
+function habilitarBotones(idServicio, idCategoria) {
+    let idBotonAgregar = "add-"+idServicio;
+    let idBotonQuitar = "delete-"+idServicio;
+    document.getElementById(idBotonQuitar).style.display = 'none';
+    document.getElementById(idBotonAgregar).disabled = false;
+    let isUnico = serviciosDisponibles.find(service => service.id == idCategoria);
+    if (isUnico.unico) {
+        const listaServicios = isUnico.servicios;
+        listaServicios.forEach(servicio => {
+            let idBotonAgregar = 'add-'+servicio.id;
+            document.getElementById(idBotonAgregar).disabled = false;
+        });
     }
 }
 
@@ -231,11 +223,54 @@ function limpiarCotizacion() {
         icon: 'error',
         title: 'Cotización límpia',
         showConfirmButton: false,
-        timer: 1500
+        timer: 2000
     })
 }
 
-// Muestro el estado actual de la cotización
+// Cargar cotización del localStorage 
+function cargarCotizacion() {
+    if (cotizacion.length == 0 && localStorage.getItem('cotizacionLocal') != null) {
+        cotizacion = JSON.parse(localStorage.getItem('cotizacionLocal'));
+        mostrarCotizacion();
+        sumarDias();
+        sumarPrecios();
+
+        // Después de pintar el html con los datos de la cotización, desactivo los botones que correspondan
+        cotizacion.forEach(element => {
+            let isUnico = serviciosDisponibles.find(service => service.id == element.idCategoria);
+            if (isUnico.unico) {
+                const listaServicios = isUnico.servicios;
+                listaServicios.forEach(servicio => {
+                    let idBotonAgregar = 'add-'+servicio.id;
+                    document.getElementById(idBotonAgregar).disabled = true;
+                });
+                let idBotonQuitar = 'delete-'+element.idServicio;
+                document.getElementById(idBotonQuitar).style.display = '';
+            }
+            else {
+                let idBotonAgregar = 'add-'+servicio.id;
+                let idBotonQuitar = 'delete-'+element.idServicio;
+                document.getElementById(idBotonQuitar).style.display = '';
+                document.getElementById(idBotonAgregar).disabled = true;
+            }
+        });
+
+        Swal.fire({
+            position: 'top-end',
+            toast: true,
+            icon: 'success',
+            title: 'Cotización cargada',
+            showConfirmButton: false,
+            timer: 3000
+        })
+    }
+    else {
+        console.log('No hay cotización para cargar...')
+    }
+};
+
+ // Muestro el estado actual de la cotización.
+ // (No se usa en la versión final, pero me facilitó la vida mientras desarrollaba todo el proyecto)
 function revisarCotizacion() {
     console.table(cotizacion);
     Swal.fire({
@@ -248,42 +283,3 @@ function revisarCotizacion() {
     })
 }
 
-// Cargar cotización del localStorage 
-function cargarCotizacion() {
-    if (cotizacion.length == 0 && localStorage.getItem('cotizacionLocal') != null) {
-        cotizacion = JSON.parse(localStorage.getItem('cotizacionLocal'));
-        mostrarCotizacion();
-        sumarDias();
-        sumarPrecios();
-        Swal.fire({
-            position: 'top-end',
-            toast: true,
-            icon: 'success',
-            title: 'Cotización cargada',
-            showConfirmButton: false,
-            timer: 1500
-        })
-    }
-    else {
-        console.log('No hay cotización para cargar...')
-    }
-};
-
-
-// if (hasclass = is-unique) {
-//     button.onclick {
-//         toggle-class(disable) al resto;
-//         toggle-class(show) al boton de quitar
-//     }
-// }
-// else {
-//     toggle-class(show) al boton de quitar
-// }
-
-//document.querySelectorAll('.box .servicio').document.querySelectorAll('.button .is-primary').onclick = document.querySelector('button.is-warning').toggle('is-hidden');
-
-// function mostarBoton() {
-//     document.querySelector('button.is-warning').toggle('is-hidden');
-// }
-
-// document.querySelectorAll('.box .servicio > .button .is-primary').click(document.querySelector('button.is-warning').toggle('is-hidden'))
