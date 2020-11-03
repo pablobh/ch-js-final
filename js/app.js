@@ -6,6 +6,15 @@
 * - Cupón de descuento (?)
 */
 
+// Inicializo AOS
+AOS.init({
+    disable: 'mobile',
+    duration: 1200,
+    easing: 'ease-in-out-back',
+    once: true
+  });
+  
+
 // Servicios Disponibles, aquí se guardará el array que cargue del JSON
 let serviciosDisponibles = [];
 
@@ -26,7 +35,7 @@ $.ajax({
         serviciosDisponibles = categoria;
         categoria.forEach((categoria) => {
             $("#bodyContainer").append(`
-                <section class="section ${categoria.bg}" data-iva="${categoria.iva}" data-unico="${categoria.unico}">
+                <section class="section ${categoria.bg}" data-iva="${categoria.iva}" data-unico="${categoria.unico}" data-aos="fade-up" data-aos-duration="800">
                     <div class="container pb-6">
                         <h2 class="title">${categoria.titulo}</h2>
                         <p class="subtitle">${categoria.txt}</p>
@@ -34,7 +43,7 @@ $.ajax({
             `)
             categoria.servicios.forEach((servicios) => {
                 $(`#${categoria.id}`).append (`
-                    <div class="column is-one-third">
+                    <div class="column is-one-third" data-aos="fade-up" data-aos-duration="500" data-aos-anchor="${categoria.id}">
                         <div class="box servicio">
                             <div class="content">
                                 <p>
@@ -236,24 +245,26 @@ function cargarCotizacion() {
         sumarPrecios();
 
         // Después de pintar el html con los datos de la cotización, desactivo los botones que correspondan
-        cotizacion.forEach(element => {
+        setTimeout(() => {
+            cotizacion.forEach(servicio => {
             let isUnico = serviciosDisponibles.find(service => service.id == element.idCategoria);
-            if (isUnico.unico) {
-                const listaServicios = isUnico.servicios;
-                listaServicios.forEach(servicio => {
+                if (isUnico.unico) {
+                    const listaServicios = isUnico.servicios;
+                    listaServicios.forEach(servicio => {
+                        let idBotonAgregar = 'add-'+servicio.id;
+                        document.getElementById(idBotonAgregar).disabled = true;
+                    });
+                    let idBotonQuitar = 'delete-'+element.idServicio;
+                    document.getElementById(idBotonQuitar).style.display = '';
+                }
+                else {
                     let idBotonAgregar = 'add-'+servicio.id;
+                    let idBotonQuitar = 'delete-'+element.idServicio;
+                    document.getElementById(idBotonQuitar).style.display = '';
                     document.getElementById(idBotonAgregar).disabled = true;
-                });
-                let idBotonQuitar = 'delete-'+element.idServicio;
-                document.getElementById(idBotonQuitar).style.display = '';
-            }
-            else {
-                let idBotonAgregar = 'add-'+servicio.id;
-                let idBotonQuitar = 'delete-'+element.idServicio;
-                document.getElementById(idBotonQuitar).style.display = '';
-                document.getElementById(idBotonAgregar).disabled = true;
-            }
-        });
+                }
+            });
+        }, 1000);
 
         Swal.fire({
             position: 'top-end',
